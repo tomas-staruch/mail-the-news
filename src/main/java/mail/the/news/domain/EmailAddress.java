@@ -1,21 +1,32 @@
 package mail.the.news.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.Table;
 
 
 @Entity
-@Table(name="email_addresses", indexes = {@Index(name = "index_email_addresses_email",  columnList="email", unique = true)})
-public class EmailAddress {
+@Table(name="email_addresses", indexes = {@Index(name = "index_on_email_address",  columnList="email", unique = true)})
+public class EmailAddress extends PersistentEntity implements Serializable {
+
+	private static final long serialVersionUID = -1738609278576442083L;
 	
-	@Id
+	public enum Status {
+		ENABLED, DISABLED, REMOVED, INVALID;
+	}
+
 	@Column(unique = true, nullable = false)
 	private String email;
 	
 	private String name;
+	
+	@Enumerated(EnumType.STRING)
+	private Status status = Status.ENABLED;
 	
 	EmailAddress() { }
 	
@@ -31,15 +42,31 @@ public class EmailAddress {
 	public String getEmail() {
 		return email;
 	}
+	
+	protected void setEmail(String email) {
+		this.email = email;
+	}
 
 	public String getName() {
 		return name;
+	}
+	
+	protected void setName(String name) {
+		this.name = name;
+	}
+	
+	public Status getStatus() {
+		return status;
+	}
+	
+	public void setStatus(Status status) {
+		this.status = status;
 	}
 
 	@Override
 	public int hashCode() {
 		// the name doesn't contribute to hashCode
-		return email.hashCode();
+		return 31 + email.hashCode();
 	}
 
 	@Override
@@ -55,6 +82,6 @@ public class EmailAddress {
 	
 	@Override
 	public String toString() {
-		return String.format("[email:%s, name:%s]", email, name);
+		return String.format("[email:%s, name:%s, status:%s]", email, name, status);
 	}
 }

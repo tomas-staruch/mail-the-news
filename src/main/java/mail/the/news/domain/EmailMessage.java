@@ -1,94 +1,108 @@
 package mail.the.news.domain;
 
-import java.util.Set;
+import java.io.Serializable;
+import java.util.Collection;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import mail.the.news.domain.EmailTemplate.ContentType;
+import mail.the.news.service.provider.EmailService;
+
+/*
+ * Class represents a single email message with one recipient.
+ */
 
 @Entity
 @Table(name="email_messages")
-public class EmailMessage {
-	public enum ContentType {
-		HTML, PLAIN_TEXT, MULTI_PART;
+public class EmailMessage extends PersistentEntity implements Serializable {
+
+	private static final long serialVersionUID = 3257255561482843237L;
+	
+	public enum Status {
+		CREATED, SENT, FAILED;
 	}
 	
-	@Id
-	@GeneratedValue
-	private Long id;
-	
-	@ManyToOne(optional = false, cascade={CascadeType.MERGE, CascadeType.REFRESH})
-	private EmailAddress from;
-	
-	@ManyToOne(optional = false, cascade={CascadeType.MERGE, CascadeType.REFRESH})
-	private EmailAddress to;
-	
+	private String from_email, to_email;
 	private String subject, body;	
 	
-	@ElementCollection(fetch=FetchType.EAGER)
-	private Set<String> filesToAttach; 
-	
-	@Column(nullable = false)
-	private String encoding;
-	
 	@Enumerated(EnumType.STRING)
-	private ContentType contentType;
+	private Status status = Status.CREATED;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="batch_id", nullable=false)
+	private EmailMessagesBatch batch;
 	
 	EmailMessage() { }
 	
-	public EmailMessage(EmailAddress from, EmailAddress to, String subject, String body, String encoding, ContentType contentType) {
-		this.from = from;
-		this.to = to;
+	public EmailMessage(String from, String to, String subject, String body) {
+		this.from_email = from;
+		this.to_email = to;
 		this.subject = subject;	
 		this.body = body;	 
-		this.encoding = encoding;
-		this.contentType = contentType;
+	}
+	
+
+	public EmailMessage send(EmailService service) {
+		return service.send(this);
 	}
 
-	public EmailAddress getFrom() {
-		return from;
+	public String getFromEmail() {
+		return from_email;
+	}
+	
+	protected void setFromEmail(String from) {
+		this.from_email = from;
 	}
 
-	public EmailAddress getTo() {
-		return to;
+	public String getToEmail() {
+		return to_email;
+	}
+	
+	protected void setToEmail(String to) {
+		this.to_email = to;
 	}
 
 	public String getSubject() {
 		return subject;
+	}
+	
+	protected void setSubject(String subject) {
+		this.subject = subject;
 	}
 
 	public String getBody() {
 		return body;
 	}
 	
-	public void setFilesToAttach(Set<String> filesToAttach) {
-		this.filesToAttach = filesToAttach;
+	protected void setBody(String body) {
+		this.body = body;
+	}
+	
+	public Status getStatus() {
+		return status;
+	}
+	
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+	
+	public EmailMessagesBatch getEmailMessagesBatch() {
+		return this.batch;
 	}
 
-	public Set<String> getFilesToAttach() {
-		return filesToAttach;
-	}
-
-	public String getEncoding() {
-		return encoding;
-	}
-
-	public ContentType getContentType() {
-		return contentType;
+	public void setEmailMessagesBatch(EmailMessagesBatch batch) {
+		this.batch = batch;
 	}
 
 	@Override
 	public int hashCode() {
-		return 31 + from.hashCode() + to.hashCode() + subject.hashCode() + body.hashCode() + encoding.hashCode() + contentType.hashCode();
+		return 31 + from_email.hashCode() * to_email.hashCode() * subject.hashCode() * body.hashCode();
 	}
 
 	@Override
@@ -99,11 +113,23 @@ public class EmailMessage {
 			return false;
 		EmailMessage other = (EmailMessage) obj;
 		
-		return from.equals(other.getFrom()) && to.equals(other.getTo()) && subject.equals(other.getSubject()) && body.equals(other.getBody()) && encoding.equals(other.getEncoding()) && contentType.equals(other.getContentType());
+		return from_email.equals(other.getFromEmail()) && to_email.equals(other.getToEmail()) && subject.equals(other.getSubject()) && body.equals(other.getBody());
 	}
 
 	@Override
 	public String toString() {
-		return String.format("[to:%s, from:%s, subject:%s, body:%s, attachment:%s, encoding:%s, type:%s]", to, from, subject, body, String.join(",", filesToAttach), encoding, contentType);
+		return String.format("[to:%s, from:%s, subject:%s, body:%s, attachment:%s]", to_email, from_email, subject, body);
+	}
+
+	public ContentType getContentType() {
+		return batch.getEmailTemplate().getContentType();
+	}
+
+	public String getEncoding() {
+		return batch.getEmailTemplate().getEncoding();
+	}
+
+	public Collection<String> getFilesToAttach() {
+		return batch.getEmailTemplate().getFilesToAttach();
 	}
 }
