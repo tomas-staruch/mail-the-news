@@ -14,6 +14,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name="address_books")
 public class AddressBook extends PersistentEntity implements Serializable {
@@ -25,9 +28,10 @@ public class AddressBook extends PersistentEntity implements Serializable {
 
 	@ManyToOne(optional=false)
 	@JoinColumn(name="user_id")
+	@JsonBackReference
 	private User user;
 	
-    @ManyToMany(fetch=FetchType.LAZY, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @ManyToMany(fetch=FetchType.LAZY, cascade={CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(name="addresses", joinColumns={@JoinColumn(name="address_book_id")}, inverseJoinColumns={@JoinColumn(name="email_address_id")})
 	private Set<EmailAddress> addresses = new LinkedHashSet<>(0);
 	

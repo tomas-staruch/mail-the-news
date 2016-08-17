@@ -45,10 +45,9 @@ public class UserRepositoryTest {
 		this.entityManager.persist(user);
 
 		// then
-		List<User> actual = repository.findByEmail(email);
-		assertThat(actual.size(), is(1));
-		assertThat(actual.get(0).getEmailTemplates().size(), is(1));
-		assertThat(actual.get(0).getAddressBooks().size(), is(1));
+		User actual = repository.findByEmail(email);
+		assertThat(actual.getEmailTemplates().size(), is(1));
+		assertThat(actual.getAddressBooks().size(), is(1));
 	}
 	
 	private User buildUser(String email) {

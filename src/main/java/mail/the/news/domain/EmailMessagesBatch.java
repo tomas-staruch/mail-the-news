@@ -14,6 +14,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import mail.the.news.service.provider.EmailService;
 
 /**
@@ -37,9 +40,11 @@ public class EmailMessagesBatch extends PersistentEntity implements Serializable
 	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="template_id", nullable=false)
+	@JsonBackReference
 	private EmailTemplate emailTemplate;
 	
 	@OneToMany(mappedBy="batch", cascade={CascadeType.ALL})
+	@JsonManagedReference
 	private Set<EmailMessage> emails = new LinkedHashSet<EmailMessage>(0);
 	
 	EmailMessagesBatch() { }

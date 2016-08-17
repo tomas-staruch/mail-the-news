@@ -11,6 +11,10 @@ import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 @Entity
 @Table(name="users", indexes = {@Index(name = "index_on_user_email",  columnList="email", unique = true)})
@@ -25,15 +29,20 @@ public class User extends PersistentEntity implements Serializable {
 	private String name;
 	
 	@Column(nullable=false)
-	private String pwd;
+	private String password;
+	
+	private Boolean enabled = Boolean.TRUE;
 	
 	@OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+	@JsonManagedReference
 	private Set<EmailTemplate> emailTemplates = new LinkedHashSet<>(0);
 	
 	@OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+	@JsonManagedReference
 	private Set<AddressBook> addressBooks = new LinkedHashSet<>(0);
 	
 	@OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+	@JsonManagedReference
 	Set<EmailServiceConfiguration> configurations = new LinkedHashSet<>(0);
 	
 	User() { }
@@ -45,7 +54,7 @@ public class User extends PersistentEntity implements Serializable {
 	public User(String email, String name, String pwd) {
 		this.email = email;
 		this.name = name;
-		this.pwd = pwd;
+		this.password = pwd;
 	}
 
 	public EmailMessagesBatch composeMessages(EmailTemplate template, String name) {
@@ -59,9 +68,23 @@ public class User extends PersistentEntity implements Serializable {
 	public String getName() {
 		return this.name;
 	}
+	
+	@JsonProperty
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-	public String getPwd() {
-		return this.pwd;
+	@JsonIgnore
+	public String getPassword() {
+		return this.password;
+	}
+	
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	public Boolean isEnabled() {
+		return this.enabled;
 	}
 	
 	public Set<EmailTemplate> getEmailTemplates() {
