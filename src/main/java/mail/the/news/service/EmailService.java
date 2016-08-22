@@ -1,4 +1,4 @@
-package mail.the.news.service.provider;
+package mail.the.news.service;
 
 import mail.the.news.domain.EmailMessage;
 

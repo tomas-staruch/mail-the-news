@@ -11,22 +11,18 @@ public class MailGunServiceConfiguration extends EmailServiceConfiguration imple
 
 	private static final long serialVersionUID = 4883091064714965124L;
 	
-	private String serviceUrl;
-	
-	private Integer apiKey;
-	
 	public MailGunServiceConfiguration() { }
-
-	public MailGunServiceConfiguration(String serviceUrl, Integer apiKey) {
-		this.serviceUrl = serviceUrl;
-		this.apiKey = apiKey;
+	
+	public MailGunServiceConfiguration(String url, String apiKey) { 
+		super(url, apiKey);
 	}
-
-	public String getServiceUrl() {
-		return serviceUrl;
+	
+	@Override
+	public String getUrl() {
+		return super.getUrl();
 	}
-
-	public Integer getApiKey() {
-		return apiKey;
+	
+	public String getApiKey() {
+		return super.getPassword();
 	}
 }

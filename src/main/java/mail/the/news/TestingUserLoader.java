@@ -8,12 +8,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import mail.the.news.domain.AddressBook;
 import mail.the.news.domain.EmailAddress;
+import mail.the.news.domain.EmailServiceConfiguration;
 import mail.the.news.domain.EmailTemplate;
+import mail.the.news.domain.SmtpServiceConfiguration;
 import mail.the.news.domain.User;
 import mail.the.news.service.EmailAddressRepository;
 import mail.the.news.service.UserRepository;
@@ -54,9 +56,12 @@ class TestingUserLoader implements ApplicationListener<ContextRefreshedEvent> {
 		EmailTemplate template = new EmailTemplate("Welcome to the first issue of newsletter", "Thanks for signing up to keep in touch. From now on, you'll get regular updates.");
 		template.setAddressBook(addressBook);
 		
-		User user = new User(userEmail, "Dummy user", new BCryptPasswordEncoder().encode("RaNdOmPwD"));
+		EmailServiceConfiguration configuration = new SmtpServiceConfiguration("any.smtp.server.com", "passwordToSmtpService");
+		
+		User user = new User(userEmail, "Dummy user", "RaNdOmPwD");
 		user.addAddressBook(addressBook);
 		user.addEmailTemplate(template);
+		user.addConfiguration(configuration);
 		
 		userRepository.saveAndFlush(user);
 		

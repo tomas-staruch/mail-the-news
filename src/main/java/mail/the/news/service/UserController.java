@@ -4,8 +4,8 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,9 +25,6 @@ public class UserController {
 	@Autowired
 	private UserRepository userRepository;
 	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	
     @RequestMapping(path="/")
     public String home() {
         return "Mail the news REST API";
@@ -37,12 +34,19 @@ public class UserController {
      * Get details about user, configurations, emails, templates, etc.
      */
     @RequestMapping(path="/user", method=RequestMethod.GET)
-    public User getUserSummary(@AuthenticationPrincipal final UserDetails authUser) {
-        return userRepository.findByEmail(authUser.getUsername());
+    public User read(@AuthenticationPrincipal final UserDetails authUser) {
+    	User user = userRepository.findByEmail(authUser.getUsername());
+    	// user password is required as encryption/decryption key
+    	user.setPassword((String) SecurityContextHolder.getContext().getAuthentication().getCredentials()); 
+    	
+        return user;
     }
     
+    /**
+     * Create a new user
+     */
     @RequestMapping(path="/user", method=RequestMethod.POST)
-    public User registerUser(@RequestBody User user) throws EmailServiceException {
+    public User create(@RequestBody User user) throws EmailServiceException {
     	if(!isValid(user.getEmail())) {
     		throw new EmailServiceException("Given email address is not valid");
     	}
@@ -50,11 +54,18 @@ public class UserController {
     	if(userRepository.existsByEmail(user.getEmail())) {
     		throw new EmailServiceException("User with given email address is already registered");
     	}
-    	
-    	// encode password before it is saved into DB
-    	user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.saveAndFlush(user);
+    }
+    
+    @RequestMapping(path="/user", method=RequestMethod.PUT)
+    public User update(@RequestBody User user) throws EmailServiceException {
+    	throw new UnsupportedOperationException("Not implemented yet");
+    }
+    
+    @RequestMapping(path="/user", method=RequestMethod.DELETE)
+    public User delete(@RequestBody User user) throws EmailServiceException {
+    	throw new UnsupportedOperationException("Not implemented yet");
     }
 
 	private boolean isValid(String email) {

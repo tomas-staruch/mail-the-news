@@ -33,7 +33,7 @@ public class SmtpSessionBuilder implements SessionBuilder<Session> {
     
 	private Session buildSession(SmtpServiceConfiguration config) {
 		Properties properties = buildProperities(config.isSslEnabled(), true, config.getHostName(), config.getPort());
-		Authenticator authenticator = buildAuthenticator(config.getUserName(), config.getPwd());
+		Authenticator authenticator = buildAuthenticator(config.getUserName(), config.getPassword());
 		
 		Session session = Session.getInstance(properties, authenticator);
 		session.setDebug(true);

@@ -14,7 +14,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import mail.the.news.domain.EmailTemplate.ContentType;
-import mail.the.news.service.provider.EmailService;
+import mail.the.news.service.EmailService;
 
 /*
  * Class represents a single email message with one recipient.

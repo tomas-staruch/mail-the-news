@@ -3,8 +3,9 @@ package mail.the.news.service;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,8 +17,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import mail.the.news.domain.AddressBook;
 import mail.the.news.domain.EmailAddress;
 import mail.the.news.domain.EmailTemplate;
-import mail.the.news.domain.SmtpServiceConfiguration;
 import mail.the.news.domain.EmailTemplate.ContentType;
+import mail.the.news.domain.SmtpServiceConfiguration;
 import mail.the.news.domain.User;
 /**
  * Integration tests for {@link UserRepository}.
@@ -38,25 +39,27 @@ public class UserRepositoryTest {
 	public void shouldFindByEmail() {
 		// given
 		// every user is uniquely identified by email
-		String email = "from@test.com";
-		User user = buildUser(email);
+		String userEmail = "from@test.com";
+		EmailAddress recipient = new EmailAddress("to@test.com");
+		User user = buildUser(userEmail, recipient);
 		
 		// when
-		this.entityManager.persist(user);
+		this.entityManager.persistAndFlush(recipient);
+		this.entityManager.persistAndFlush(user);
 
 		// then
-		User actual = repository.findByEmail(email);
+		User actual = repository.findByEmail(userEmail);
 		assertThat(actual.getEmailTemplates().size(), is(1));
 		assertThat(actual.getAddressBooks().size(), is(1));
 	}
 	
-	private User buildUser(String email) {
-		AddressBook addressBook = new AddressBook("testing address book", Collections.singleton(new EmailAddress("to@test.com")));
+	private User buildUser(String userEmail, EmailAddress recipient) {
+		AddressBook addressBook = new AddressBook("testing address book", Stream.of(recipient).collect(Collectors.toSet()));
 		
 		EmailTemplate template = new EmailTemplate("A subject", "A messge body", "UTF-8", ContentType.PLAIN_TEXT);
 		template.setAddressBook(addressBook);
 		
-		User user = new User(email, "random_password");
+		User user = new User(userEmail, "eNcOded");
 		user.addAddressBook(addressBook);
 		user.addEmailTemplate(template);
 		user.addConfiguration(new SmtpServiceConfiguration("not.existing.server.com", "rAnDoMpWd"));

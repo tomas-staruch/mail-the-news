@@ -18,7 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import mail.the.news.domain.EmailMessage.Status;
-import mail.the.news.service.provider.EmailService;
+import mail.the.news.service.EmailService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest //TODO without JPA ?
@@ -58,7 +58,7 @@ public class UserIntegrationTest {
 
 		this.user = new User(userEmail, "random_password");
 		this.user.addAddressBook(addressBook);
-		this.user.addConfiguration(new SmtpServiceConfiguration("not.existing.server.com", "rAnDoMpWd"));	
+		this.user.addConfiguration(new SmtpServiceConfiguration("not.existing.smtp.server.com", "smtp_account_password"));	
 		
 		this.templateIdentificators.forEach(identificator -> {
 			EmailTemplate template = new EmailTemplate(String.format("%s", identificator), "Messge body");

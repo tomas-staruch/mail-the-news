@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+
+import mail.the.news.security.listener.AesEncryptionListener;
 
 @Entity
 @DiscriminatorValue("smtp")
@@ -25,45 +28,41 @@ public class SmtpServiceConfiguration extends EmailServiceConfiguration implemen
 		}
 	}
 	
-	private String hostName;
-	
 	private Integer port;
-	
-	private String pwd;
-	
+
 	private Boolean sslEnabled;
 	
 	SmtpServiceConfiguration() { }
 
-	public SmtpServiceConfiguration(String hostName, String pwd) {
-		this(hostName, DefaultPorts.NON_ENCRYPTED.getPort(), pwd, Boolean.FALSE);
+	public SmtpServiceConfiguration(String hostName, String password) {
+		this(hostName, DefaultPorts.NON_ENCRYPTED.getPort(), password, Boolean.FALSE);
 	}
 	
-	public SmtpServiceConfiguration(String hostName, Integer port, String pwd) {
-		this(hostName, port, pwd, Boolean.FALSE);
+	public SmtpServiceConfiguration(String hostName, Integer port, String password) {
+		this(hostName, port, password, Boolean.FALSE);
 	}
 	
-	public SmtpServiceConfiguration(String hostName, Integer port, String pwd, Boolean sslEnabled) {
-		this.hostName = hostName;
+	public SmtpServiceConfiguration(String hostName, Integer port, String password, Boolean sslEnabled) {
+		super(hostName, password);
 		this.port = port;
-		this.pwd = pwd;
 		this.sslEnabled = sslEnabled;
-	}
-
-	public String getHostName() {
-		return hostName;
 	}
 
 	public Integer getPort() {
 		return port;
 	}
 	
+	public String getHostName() {
+		return super.getUrl();
+	}
+	
 	public String getUserName() {
 		return getUser().getEmail();
 	}
 
-	public String getPwd() {
-		return pwd;
+	@Override
+	public String getPassword() {
+		return password;
 	}
 
 	public Boolean isSslEnabled() {
@@ -72,7 +71,7 @@ public class SmtpServiceConfiguration extends EmailServiceConfiguration implemen
 	
 	@Override
 	public int hashCode() {
-		return 31 + getHostName().hashCode() * getUserName().hashCode() * getPort().hashCode() * getPwd().hashCode() * isSslEnabled().hashCode();
+		return 31 +getHostName().hashCode() * getUserName().hashCode() * getPort().hashCode() * getPassword().hashCode() * isSslEnabled().hashCode();
 	}
 	
 	@Override
@@ -87,7 +86,7 @@ public class SmtpServiceConfiguration extends EmailServiceConfiguration implemen
 		return getHostName().equals(other.getHostName()) &&
 			   getUserName().equals(other.getUserName()) && 
 			   getPort().equals(other.getPort()) && 
-			   getPort().equals(other.getPort()) && 				
+			   getPassword().equals(other.getPassword()) && 				
 			   isSslEnabled().equals(other.isSslEnabled());
 	}
 }

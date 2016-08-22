@@ -1,4 +1,4 @@
-package mail.the.news.service.provider.smtp;
+package mail.the.news.service.provider;
 
 import javax.mail.Session;
 
@@ -8,11 +8,9 @@ import org.slf4j.LoggerFactory;
 import mail.the.news.Application;
 import mail.the.news.domain.EmailMessage;
 import mail.the.news.domain.EmailMessage.Status;
-
+import mail.the.news.service.EmailService;
 import mail.the.news.service.exception.EmailServiceException;
-
-import mail.the.news.service.provider.EmailService;
-import mail.the.news.service.provider.SessionBuilder;
+import mail.the.news.service.provider.smtp.SmtpEmailMessageFactory;
 
 public final class SmtpService implements EmailService {
 	

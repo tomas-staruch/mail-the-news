@@ -3,8 +3,7 @@ package mail.the.news.service.provider;
 import mail.the.news.domain.EmailServiceConfiguration;
 import mail.the.news.domain.MailGunServiceConfiguration;
 import mail.the.news.domain.SmtpServiceConfiguration;
-
-import mail.the.news.service.provider.smtp.SmtpService;
+import mail.the.news.service.EmailService;
 import mail.the.news.service.provider.smtp.SmtpSessionBuilder;
 
 public class EmailServiceFactory {

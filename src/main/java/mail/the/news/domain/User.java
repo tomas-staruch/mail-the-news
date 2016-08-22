@@ -7,16 +7,21 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import mail.the.news.annotation.Encrypted;
+import mail.the.news.security.listener.BCryptEncryptionListener;
 
 @Entity
+@EntityListeners(BCryptEncryptionListener.class)
 @Table(name="users", indexes = {@Index(name = "index_on_user_email",  columnList="email", unique = true)})
 public class User extends PersistentEntity implements Serializable {
 
@@ -28,8 +33,12 @@ public class User extends PersistentEntity implements Serializable {
 
 	private String name;
 	
+	@Transient
+	private String password; // user password is used as key for encryption of other passwords
+	
 	@Column(nullable=false)
-	private String password;
+	@Encrypted
+	private String hashedPassword;
 	
 	private Boolean enabled = Boolean.TRUE;
 	
@@ -47,14 +56,15 @@ public class User extends PersistentEntity implements Serializable {
 	
 	User() { }
 	
-	public User(String email, String pwd) {
-		this(email, null, pwd);
+	public User(String email, String password) {
+		this(email, null, password);
 	}
 	
-	public User(String email, String name, String pwd) {
+	public User(String email, String name, String password) {
 		this.email = email;
 		this.name = name;
-		this.password = pwd;
+		this.password = password;
+		this.hashedPassword = password;
 	}
 
 	public EmailMessagesBatch composeMessages(EmailTemplate template, String name) {
@@ -79,8 +89,9 @@ public class User extends PersistentEntity implements Serializable {
 		return this.password;
 	}
 	
-	public void setEnabled(Boolean enabled) {
-		this.enabled = enabled;
+	@JsonIgnore
+	public String getHashedPassword() {
+		return hashedPassword;
 	}
 	
 	public Boolean isEnabled() {

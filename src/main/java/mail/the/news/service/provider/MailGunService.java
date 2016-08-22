@@ -2,6 +2,7 @@ package mail.the.news.service.provider;
 
 import mail.the.news.domain.EmailMessage;
 import mail.the.news.domain.MailGunServiceConfiguration;
+import mail.the.news.service.EmailService;
 
 //TODO implement it
 class MailGunService implements EmailService {

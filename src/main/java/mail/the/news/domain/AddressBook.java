@@ -41,9 +41,9 @@ public class AddressBook extends PersistentEntity implements Serializable {
 		this.name = name;
 	}
 	
-	public AddressBook(String name, Set<EmailAddress> addresses) {
+	public AddressBook(String name, Set<EmailAddress> emails) {
 		this.name = name;
-		this.addresses = addresses;
+		this.addresses = emails;
 	}
 
 	public String getName() {
