@@ -15,7 +15,7 @@ import org.apache.commons.mail.EmailAttachment;
 import org.apache.commons.mail.EmailException;
 
 import mail.the.news.domain.EmailMessage;
-import mail.the.news.service.exception.EmailServiceException;
+import mail.the.news.exception.EmailServiceException;
 
 public abstract class SmtpEmailMessage {
 	private static final String EMPTY_STR = "";

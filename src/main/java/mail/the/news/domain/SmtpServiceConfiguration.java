@@ -1,12 +1,12 @@
 package mail.the.news.domain;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 
-import mail.the.news.security.listener.AesEncryptionListener;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 @Entity
 @DiscriminatorValue("smtp")
@@ -52,17 +52,8 @@ public class SmtpServiceConfiguration extends EmailServiceConfiguration implemen
 		return port;
 	}
 	
-	public String getHostName() {
-		return super.getUrl();
-	}
-	
 	public String getUserName() {
-		return getUser().getEmail();
-	}
-
-	@Override
-	public String getPassword() {
-		return password;
+		return getUser() != null ? getUser().getEmail() : null;
 	}
 
 	public Boolean isSslEnabled() {
@@ -71,7 +62,7 @@ public class SmtpServiceConfiguration extends EmailServiceConfiguration implemen
 	
 	@Override
 	public int hashCode() {
-		return 31 +getHostName().hashCode() * getUserName().hashCode() * getPort().hashCode() * getPassword().hashCode() * isSslEnabled().hashCode();
+		return Objects.hash(getUrl(), getUserName(), getPort(), getPassword(), isSslEnabled());
 	}
 	
 	@Override
@@ -83,10 +74,15 @@ public class SmtpServiceConfiguration extends EmailServiceConfiguration implemen
 		
 		SmtpServiceConfiguration other = (SmtpServiceConfiguration) obj;
 		
-		return getHostName().equals(other.getHostName()) &&
-			   getUserName().equals(other.getUserName()) && 
-			   getPort().equals(other.getPort()) && 
-			   getPassword().equals(other.getPassword()) && 				
-			   isSslEnabled().equals(other.isSslEnabled());
+		return Objects.equals(getUrl(), other.getUrl()) &&
+			   Objects.equals(getUserName(), other.getUserName()) && 
+			   Objects.equals(getPort(), other.getPort()) && 
+			   Objects.equals(getPassword(), other.getPassword()) && 				
+			   Objects.equals(isSslEnabled(), other.isSslEnabled());
+	}
+	
+	@Override
+	public String toString() {
+		return new ReflectionToStringBuilder(this).build();
 	}
 }

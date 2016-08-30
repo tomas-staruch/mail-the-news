@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import mail.the.news.domain.EmailAddress;
+import mail.the.news.repository.EmailAddressRepository;
 
 /**
  * Integration tests for {@link EmailAddressRepository}.

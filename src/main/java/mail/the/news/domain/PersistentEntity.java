@@ -28,6 +28,18 @@ abstract class PersistentEntity {
     @Column(nullable = true)
     private Date updated;
     
+    public Long getId() {
+		return id;
+	}
+    
+    public Date getCreated() {
+		return created;
+	}
+    
+    public Date getUpdated() {
+		return updated;
+	}
+    
     @PrePersist
     protected void onCreate() {
       created = new Date();

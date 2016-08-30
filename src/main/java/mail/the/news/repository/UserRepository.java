@@ -1,4 +1,4 @@
-package mail.the.news.service;
+package mail.the.news.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,9 +9,6 @@ import mail.the.news.domain.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
 	User findByEmail(String email);
-	
-    @Query("SELECT u, et FROM User u INNER JOIN u.emailTemplates et WHERE u.email = :email")
-	User findByEmailEager(@Param("email") String email);
 	
     @Query("SELECT CASE WHEN COUNT(1) > 0 THEN true ELSE false END FROM User u WHERE LOWER(u.email) = LOWER(:email)")
     public boolean existsByEmail(@Param("email") String email);

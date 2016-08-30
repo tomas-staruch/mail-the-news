@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import mail.the.news.Application;
 import mail.the.news.domain.EmailMessage;
 import mail.the.news.domain.EmailMessage.Status;
+import mail.the.news.exception.EmailServiceException;
 import mail.the.news.service.EmailService;
-import mail.the.news.service.exception.EmailServiceException;
 import mail.the.news.service.provider.smtp.SmtpEmailMessageFactory;
 
 public final class SmtpService implements EmailService {

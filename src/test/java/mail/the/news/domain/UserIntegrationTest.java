@@ -14,10 +14,15 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import mail.the.news.domain.EmailMessage.Status;
+import mail.the.news.security.AesSymmetricKeyEncrypter;
+import mail.the.news.security.Encrypter;
+import mail.the.news.security.HashEncrypter;
 import mail.the.news.service.EmailService;
 
 @RunWith(SpringRunner.class)
@@ -27,6 +32,9 @@ public class UserIntegrationTest {
 	private final String userEmail = "random@any.domain.com";
 	private final List<String> templateIdentificators = Arrays.asList("A", "B");
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	/**
 	 * Dummy service which only change status from CREATED to SENT
 	 */
@@ -46,7 +54,9 @@ public class UserIntegrationTest {
 	private User user;
 	
 	@Before
-	public void setup() {
+	public void setup() throws Exception {
+		final String userPwd = "random_password";
+
 		// init the user with some data
 		Set<EmailAddress> recipients = Arrays.stream(
 				new EmailAddress[] { 
@@ -55,10 +65,12 @@ public class UserIntegrationTest {
 				}).collect(Collectors.toSet());
 		
 		AddressBook addressBook = new AddressBook("testing address book", recipients);
+		
+		Encrypter encrypter = new AesSymmetricKeyEncrypter(userPwd, new AesSymmetricKeyEncrypter.Seed());
 
-		this.user = new User(userEmail, "random_password");
+		this.user = new User(userEmail, new HashEncrypter(passwordEncoder).encrypt(userPwd));
 		this.user.addAddressBook(addressBook);
-		this.user.addConfiguration(new SmtpServiceConfiguration("not.existing.smtp.server.com", "smtp_account_password"));	
+		this.user.addConfiguration(new SmtpServiceConfiguration("not.existing.smtp.server.com", encrypter.encrypt("smtpAccountPassword")));	
 		
 		this.templateIdentificators.forEach(identificator -> {
 			EmailTemplate template = new EmailTemplate(String.format("%s", identificator), "Messge body");

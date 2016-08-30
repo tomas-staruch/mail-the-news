@@ -16,13 +16,4 @@ public class MailGunServiceConfiguration extends EmailServiceConfiguration imple
 	public MailGunServiceConfiguration(String url, String apiKey) { 
 		super(url, apiKey);
 	}
-	
-	@Override
-	public String getUrl() {
-		return super.getUrl();
-	}
-	
-	public String getApiKey() {
-		return super.getPassword();
-	}
 }

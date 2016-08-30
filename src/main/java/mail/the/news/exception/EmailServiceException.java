@@ -1,4 +1,4 @@
-package mail.the.news.service.exception;
+package mail.the.news.exception;
 
 /**
  * Wrapper for exceptions

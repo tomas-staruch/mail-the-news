@@ -2,43 +2,33 @@ package mail.the.news.domain;
 
 import java.io.Serializable;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import mail.the.news.annotation.Encrypted;
-import mail.the.news.security.listener.BCryptEncryptionListener;
 
 @Entity
-@EntityListeners(BCryptEncryptionListener.class)
 @Table(name="users", indexes = {@Index(name = "index_on_user_email",  columnList="email", unique = true)})
-public class User extends PersistentEntity implements Serializable {
+public class User extends SecurePersistentEntity implements Serializable {
 
 	private static final long serialVersionUID = -4553824682239034107L;
 	
 	// email address uniquely identify the user and is used to set "from" of every email message
+	@NotNull(message = "error.email.notnull")
+	@Size(min = 3, max = 255, message = "error.email.size")
 	@Column(unique=true, nullable=false)
 	private String email;
 
 	private String name;
-	
-	@Transient
-	private String password; // user password is used as key for encryption of other passwords
-	
-	@Column(nullable=false)
-	@Encrypted
-	private String hashedPassword;
 	
 	private Boolean enabled = Boolean.TRUE;
 	
@@ -61,10 +51,9 @@ public class User extends PersistentEntity implements Serializable {
 	}
 	
 	public User(String email, String name, String password) {
+		super(password);
 		this.email = email;
 		this.name = name;
-		this.password = password;
-		this.hashedPassword = password;
 	}
 
 	public EmailMessagesBatch composeMessages(EmailTemplate template, String name) {
@@ -77,21 +66,6 @@ public class User extends PersistentEntity implements Serializable {
 
 	public String getName() {
 		return this.name;
-	}
-	
-	@JsonProperty
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	@JsonIgnore
-	public String getPassword() {
-		return this.password;
-	}
-	
-	@JsonIgnore
-	public String getHashedPassword() {
-		return hashedPassword;
 	}
 	
 	public Boolean isEnabled() {
@@ -136,7 +110,7 @@ public class User extends PersistentEntity implements Serializable {
 	
 	@Override
 	public int hashCode() {
-		return 31 + getEmail().hashCode();
+		return Objects.hash(getEmail());
 	}
 	
 	@Override
@@ -148,6 +122,6 @@ public class User extends PersistentEntity implements Serializable {
 		
 		User other = (User) obj;
 		
-		return getEmail().equals(other.getEmail());
+		return Objects.equals(getEmail(), other.getEmail());
 	}
 }

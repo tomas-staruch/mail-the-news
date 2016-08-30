@@ -15,7 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import mail.the.news.domain.User;
-import mail.the.news.service.UserRepository;
+import mail.the.news.exception.EmailSecurityException;
+import mail.the.news.repository.UserRepository;
 
 @EnableWebSecurity
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -61,8 +62,12 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				User user = userRepository.findByEmail(email);
 				
 				if(user != null) {
-					// the password hashes are compared at DaoAuthenticationProvider
-			        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getHashedPassword(), user.isEnabled(), true, true, true, AuthorityUtils.createAuthorityList("USER"));
+					try {
+						// to encrypt the password and compare the hashes is used autowired {@link PasswordEncoder}
+						return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), user.isEnabled(), true, true, true, AuthorityUtils.createAuthorityList("USER"));
+					} catch(EmailSecurityException e) {
+						throw new UsernameNotFoundException("Could not find the user '" + email + "' because of an excaption as occured", e);
+					}
 				} else {
 					throw new UsernameNotFoundException("Could not find the user '" + email + "'");
 				}

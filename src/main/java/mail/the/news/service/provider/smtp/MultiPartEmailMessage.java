@@ -8,7 +8,7 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.MultiPartEmail;
 
 import mail.the.news.domain.EmailMessage;
-import mail.the.news.service.exception.EmailServiceException;
+import mail.the.news.exception.EmailServiceException;
 
 class MultiPartEmailMessage extends SmtpEmailMessage {
 

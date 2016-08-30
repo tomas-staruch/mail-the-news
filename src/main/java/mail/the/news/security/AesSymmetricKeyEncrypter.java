@@ -19,11 +19,15 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import mail.the.news.exception.EmailSecurityException;
+
 /**
  * Class provides methods for safe encryption and decryption of sensitive data by AES symmetric-key algorithm. 
  * The password is used for both encrypting and decrypting the data.
+ * 
+ * TODO see AesBytesEncryptor
  */
-public class AesEncrypter {
+public class AesSymmetricKeyEncrypter implements Encrypter {
 	
 	/**
 	 * Divide 32 byte seed to two equal parts. 
@@ -77,7 +81,7 @@ public class AesEncrypter {
      * @throws NoSuchAlgorithmException 
      * @throws InvalidKeySpecException 
      */
-    public AesEncrypter(String password, Seed seed) throws Exception {
+    public AesSymmetricKeyEncrypter(String password, Seed seed) throws Exception {
     	this.seed = seed;
     	this.cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
     	
@@ -88,24 +92,28 @@ public class AesEncrypter {
 
     /**
      * Encrypt the data and convert them to Base64 string
-     * @throws InvalidAlgorithmParameterException 
-     * @throws InvalidKeyException 
-     * @throws BadPaddingException 
-     * @throws IllegalBlockSizeException 
      */
-    public String encrypt(String data) throws Exception {
-        cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(seed.getInitializationVector()));
-       
-        return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
+    public String encrypt(String data) throws EmailSecurityException {
+        try {
+			cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(seed.getInitializationVector()));
+			
+	        return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
+		} catch (InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+			throw new EmailSecurityException("An exception occured durind encryption of data", e);
+		}
     }
 
     /**
      * Decrypt the data encoded by Base64
      */
-    public String decrypt(byte[] data) throws Exception {
-        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(seed.getInitializationVector()));
-
-        return new String(cipher.doFinal(data));
+    public String decrypt(String data) throws EmailSecurityException {
+        try {
+	        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(seed.getInitializationVector()));
+	
+	        return new String(cipher.doFinal(Base64.getDecoder().decode(data)));
+		} catch (InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+			throw new EmailSecurityException("An exception occured durind decryption of data", e);
+		}
     }
     
     /**

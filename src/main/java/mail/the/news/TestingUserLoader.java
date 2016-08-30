@@ -17,16 +17,28 @@ import mail.the.news.domain.EmailServiceConfiguration;
 import mail.the.news.domain.EmailTemplate;
 import mail.the.news.domain.SmtpServiceConfiguration;
 import mail.the.news.domain.User;
-import mail.the.news.service.EmailAddressRepository;
-import mail.the.news.service.UserRepository;
+import mail.the.news.repository.EmailAddressRepository;
+import mail.the.news.repository.UserRepository;
+import mail.the.news.security.AesSymmetricKeyEncrypter;
+import mail.the.news.security.Encrypter;
+import mail.the.news.security.HashEncrypter;
 
 /**
  * Import a dummy user data when the application starts in order to do a simple demo
  *  
- * You can use curl to get the user data in json or xml format back:
+ * You can use curl to get the user data in json or xml format back, e.g.:
  * curl -k --header "Accept: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD http://localhost:8080/user
  * 
- * if SSL enabled:
+ * Post a new user:
+ * curl -k -H "Content-Type: application/json" --data "{\"email\":\"another.user@not.existing.domain.com\",\"password\":\"aNyPaSsWoRd\",\"name\":\"John The Tester\"}" http://localhost:8080/user
+ * 
+ * Request detail information about particular configuration:
+ * curl -k --header "Accept: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD http://localhost:8080/user/configurations/1
+ * 
+ * Post a new configuration:
+ * curl -k -H "Content-Type: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD --url http://localhost:8080/user/configurations --data "{\"port\":25,\"sslEnabled\":false,\"url\":\"another.smtp.server.com\",\"userName\":\"my@not.existing.domain.com\",\"password\":\"secrete_phrase\",\"type\":\"smtp\"}"
+ * 
+ * If SSL is enabled, use secure HTTP through port 9000:
  * curl -k --header "Accept: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD https://localhost:9000/user
  */
 @Component
@@ -39,8 +51,13 @@ class TestingUserLoader implements ApplicationListener<ContextRefreshedEvent> {
 	@Autowired
 	private EmailAddressRepository addressesRepository;	
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent arg0) {
+		final String userPwd = "RaNdOmPwD";
+
 		log.info("Loading of dummy data started ...");
 		
 		String userEmail = "dummy_user@not.existing.domain.com";
@@ -56,15 +73,20 @@ class TestingUserLoader implements ApplicationListener<ContextRefreshedEvent> {
 		EmailTemplate template = new EmailTemplate("Welcome to the first issue of newsletter", "Thanks for signing up to keep in touch. From now on, you'll get regular updates.");
 		template.setAddressBook(addressBook);
 		
-		EmailServiceConfiguration configuration = new SmtpServiceConfiguration("any.smtp.server.com", "passwordToSmtpService");
-		
-		User user = new User(userEmail, "Dummy user", "RaNdOmPwD");
+		EmailServiceConfiguration configuration = null;
+		try {
+			Encrypter encrypter = new AesSymmetricKeyEncrypter(userPwd, new AesSymmetricKeyEncrypter.Seed());
+			configuration = new SmtpServiceConfiguration("any.smtp.server.com", encrypter.encrypt("passwordToSmtpService"));
+		} catch (Exception e) {
+			throw new RuntimeException("An exception occured when configuration password was tried to be encrypted", e);
+		}
+				
+		User user = new User(userEmail, "Dummy user", new HashEncrypter(passwordEncoder).encrypt(userPwd));
 		user.addAddressBook(addressBook);
 		user.addEmailTemplate(template);
 		user.addConfiguration(configuration);
 		
 		userRepository.saveAndFlush(user);
-		
 	}
 
 }

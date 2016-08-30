@@ -1,4 +1,4 @@
-package mail.the.news.service;
+package mail.the.news.repository;
 
 import mail.the.news.domain.EmailAddress;
 
