@@ -3,6 +3,7 @@ package mail.the.news.service;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import mail.the.news.exception.EmailServiceException;
 import mail.the.news.repository.BaseRepository;
@@ -41,7 +43,6 @@ public abstract class BaseController<T> {
         return getCustomRepository().findByEmail(authUser.getUsername());
     }
     
-    
 	/**
      * Get a particular users's resource defined by id and user's email
      */
@@ -50,8 +51,7 @@ public abstract class BaseController<T> {
     	// use user email to prevent asking of configuration which doesn't belongs to user
     	return getCustomRepository().findById(authUser.getUsername(), id);
     }
-    
-    
+
     @RequestMapping(method=RequestMethod.PUT)
     public T update(@Validated @RequestBody T configuration) throws EmailServiceException {
     	throw new UnsupportedOperationException("Not implemented yet");
@@ -62,4 +62,10 @@ public abstract class BaseController<T> {
     	throw new UnsupportedOperationException("Not implemented yet");
     }
     
+    protected HttpHeaders createHeaderWithLocation(Long id) {
+		HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(id).toUri());
+		
+        return headers;
+	}
 }

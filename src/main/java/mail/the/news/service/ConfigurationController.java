@@ -1,6 +1,8 @@
 package mail.the.news.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +28,7 @@ public class ConfigurationController extends BaseController<EmailServiceConfigur
      * Create a new configuration and add it to the list of user's configurations 
      */
     @RequestMapping(method=RequestMethod.POST)
-    public EmailServiceConfiguration create(@AuthenticationPrincipal final UserDetails authUser, @Validated @RequestBody EmailServiceConfiguration configuration) throws Exception {
+    public ResponseEntity<EmailServiceConfiguration> create(@AuthenticationPrincipal final UserDetails authUser, @Validated @RequestBody EmailServiceConfiguration configuration) throws Exception {
     	// user's password is required as key for symmetric encryption/decryption  	
     	String securityKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials(); 
     	Encrypter encrypter = new AesSymmetricKeyEncrypter(securityKey, new AesSymmetricKeyEncrypter.Seed());
@@ -35,8 +37,10 @@ public class ConfigurationController extends BaseController<EmailServiceConfigur
     	if(configuration.getUser() == null) {
     		configuration.setUser(getUserRepository().findByEmail(authUser.getUsername()));
     	}
-	
-        return configurationRepository.saveAndFlush(configuration);
+    	
+    	EmailServiceConfiguration result = configurationRepository.saveAndFlush(configuration);
+
+        return new ResponseEntity<>(result, createHeaderWithLocation(result.getId()), HttpStatus.CREATED);
     }
     
     @Override

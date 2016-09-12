@@ -3,6 +3,9 @@ package mail.the.news.service;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import mail.the.news.domain.User;
 import mail.the.news.exception.EmailServiceException;
@@ -43,7 +47,7 @@ public class UserController {
      * Note: creation of user is excluded from authentication process
      */
     @RequestMapping(method=RequestMethod.POST)
-    public User create(@Validated @RequestBody User user) throws EmailServiceException {
+    public ResponseEntity<User> create(@Validated @RequestBody User user) throws EmailServiceException {
     	validate(user.getEmail());
     	
     	if(userRepository.existsByEmail(user.getEmail())) {
@@ -52,7 +56,12 @@ public class UserController {
     	
     	user.setPassword(new HashEncrypter(passwordEncoder).encrypt(user.getPassword()));
 	
-        return userRepository.saveAndFlush(user);
+        User result = userRepository.saveAndFlush(user);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(result.getId()).toUri());
+
+        return new ResponseEntity<>(result, headers, HttpStatus.CREATED);
     }
     
     @RequestMapping(method=RequestMethod.PUT)

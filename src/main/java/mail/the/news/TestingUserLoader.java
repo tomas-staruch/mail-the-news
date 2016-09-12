@@ -27,19 +27,19 @@ import mail.the.news.security.HashEncrypter;
  * Import a dummy user data when the application starts in order to do a simple demo
  *  
  * You can use curl to get the user data in json or xml format back, e.g.:
- * curl -k --header "Accept: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD http://localhost:8080/user
+ * curl -i --header "Accept: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD http://localhost:8080/user
  * 
  * Post a new user:
- * curl -k -H "Content-Type: application/json" --data "{\"email\":\"another.user@not.existing.domain.com\",\"password\":\"aNyPaSsWoRd\",\"name\":\"John The Tester\"}" http://localhost:8080/user
+ * curl -i -H "Content-Type: application/json" --data "{\"email\":\"another.user@not.existing.domain.com\",\"password\":\"aNyPaSsWoRd\",\"name\":\"John The Tester\"}" http://localhost:8080/user
  * 
  * Request detail information about particular configuration:
- * curl -k --header "Accept: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD http://localhost:8080/user/configurations/1
+ * curl -i --header "Accept: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD http://localhost:8080/user/configurations/1
  * 
  * Post a new configuration:
- * curl -k -H "Content-Type: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD --url http://localhost:8080/user/configurations --data "{\"port\":25,\"sslEnabled\":false,\"url\":\"another.smtp.server.com\",\"userName\":\"my@not.existing.domain.com\",\"password\":\"secrete_phrase\",\"type\":\"smtp\"}"
+ * curl -i -H "Content-Type: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD --url http://localhost:8080/user/configurations --data "{\"port\":25,\"sslEnabled\":false,\"url\":\"another.smtp.server.com\",\"userName\":\"my@not.existing.domain.com\",\"password\":\"secrete_phrase\",\"type\":\"smtp\"}"
  * 
  * If SSL is enabled, use secure HTTP through port 9000:
- * curl -k --header "Accept: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD https://localhost:9000/user
+ * curl -i -k --header "Accept: application/json" --user dummy_user@not.existing.domain.com:RaNdOmPwD https://localhost:9000/user
  */
 @Component
 class TestingUserLoader implements ApplicationListener<ContextRefreshedEvent> {
