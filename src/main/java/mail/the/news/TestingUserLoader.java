@@ -1,5 +1,6 @@
 package mail.the.news;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -64,9 +65,9 @@ class TestingUserLoader implements ApplicationListener<ContextRefreshedEvent> {
 		if(addressesRepository.existsByEmail(userEmail)) 
 			return ;
 		
-		EmailAddress toA = addressesRepository.findOrCreate(new EmailAddress("user_a@not.existing.domain.com"));
-		EmailAddress toB = addressesRepository.findOrCreate(new EmailAddress("user_b@not.existing.domain.com"));
-		EmailAddress toC = addressesRepository.findOrCreate(new EmailAddress("user_c@not.existing.domain.com"));
+		EmailAddress toA = findOrCreate(new EmailAddress("user_a@not.existing.domain.com"));
+		EmailAddress toB = findOrCreate(new EmailAddress("user_b@not.existing.domain.com"));
+		EmailAddress toC = findOrCreate(new EmailAddress("user_c@not.existing.domain.com"));
 		
 		AddressBook addressBook = new AddressBook("Address book of not existing recipients", Stream.of(toA, toB, toC).collect(Collectors.toSet()));
 	
@@ -87,6 +88,15 @@ class TestingUserLoader implements ApplicationListener<ContextRefreshedEvent> {
 		user.addConfiguration(configuration);
 		
 		userRepository.saveAndFlush(user);
+	}
+
+	public EmailAddress findOrCreate(EmailAddress entity) {
+		// there is unique constraint on email, so only one EmailAddress can be found
+		List<EmailAddress> addresses = addressesRepository.findByEmail(entity.getEmail());
+		if(addresses.size() > 0)
+			return addresses.get(0);
+
+		return addressesRepository.save(entity);
 	}
 
 }

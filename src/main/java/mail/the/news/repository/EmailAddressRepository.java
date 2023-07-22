@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import mail.the.news.domain.EmailAddress;
 
-public interface EmailAddressRepository extends JpaRepository<EmailAddress, Long>, EmailAddressRepositoryCustom {
+public interface EmailAddressRepository extends JpaRepository<EmailAddress, Long> {
 
 	List<EmailAddress> findByEmail(String email); 
 	

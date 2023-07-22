@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Base64;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +45,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldCreateNewUser() {
+    public void shouldCreateNewUser() throws JSONException {
     	// given a user in JSON format (because password wouldn't be parsed into User object)
     	HttpEntity<String> entity = createUserRequest("joe.black@his.domain.com", "Joe Black", "eNcRyPtEdPwD");
 
@@ -62,7 +63,7 @@ public class UserControllerTest {
 		return new HttpEntity<String>(headers);
     }
     
-    private HttpEntity<String> createUserRequest(String email, String name, String pwd) {
+    private HttpEntity<String> createUserRequest(String email, String name, String pwd) throws JSONException {
     	JSONObject request = new JSONObject();
     	request.put("email", email);
     	request.put("name", name);

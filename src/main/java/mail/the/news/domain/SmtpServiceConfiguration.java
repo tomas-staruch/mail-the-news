@@ -3,8 +3,8 @@ package mail.the.news.domain;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
