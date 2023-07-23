@@ -1,11 +1,11 @@
 package mail.the.news.security;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Base64;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import mail.the.news.security.AesSymmetricKeyEncrypter.Seed;
 

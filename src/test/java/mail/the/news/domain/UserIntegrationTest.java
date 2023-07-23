@@ -1,23 +1,22 @@
 package mail.the.news.domain;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import mail.the.news.domain.EmailMessage.Status;
 import mail.the.news.security.AesSymmetricKeyEncrypter;
@@ -25,8 +24,8 @@ import mail.the.news.security.Encrypter;
 import mail.the.news.security.HashEncrypter;
 import mail.the.news.service.EmailService;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest //TODO without JPA ?
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class UserIntegrationTest {
 	// the email is unique identifier of user
 	private final String userEmail = "random@any.domain.com";
@@ -53,7 +52,7 @@ public class UserIntegrationTest {
 	
 	private User user;
 	
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		final String userPwd = "random_password";
 
@@ -72,8 +71,8 @@ public class UserIntegrationTest {
 		this.user.addAddressBook(addressBook);
 		this.user.addConfiguration(new SmtpServiceConfiguration("not.existing.smtp.server.com", encrypter.encrypt("smtpAccountPassword")));	
 		
-		this.templateIdentificators.forEach(identificator -> {
-			EmailTemplate template = new EmailTemplate(String.format("%s", identificator), "Messge body");
+		this.templateIdentificators.forEach(id -> {
+			EmailTemplate template = new EmailTemplate(String.format("%s", id), "A message body.");
 			template.setAddressBook(addressBook);
 			
 			this.user.addEmailTemplate(template);
@@ -86,7 +85,9 @@ public class UserIntegrationTest {
 		EmailTemplate template = findTemplateBySubject(user.getEmailTemplates(), templateIdentificators.get(0));
 		
 		// when
-		Set<EmailMessage> emails = user.composeMessages(template, "First round").sendAll(testService);
+		Set<EmailMessage> emails = user
+				.composeMessages(template, "First round")
+				.sendAll(testService);
 
 		// then
 		assertThat(emails.size(), is(2));
@@ -94,16 +95,16 @@ public class UserIntegrationTest {
 	}
 	
 	private EmailTemplate findTemplateBySubject(Set<EmailTemplate> templates, String subjectToFind) {
-		return templates.stream().filter(template -> template.getSubject().equals(subjectToFind)).findFirst().get();
+		return templates
+				.stream()
+				.filter(template -> template.getSubject().equals(subjectToFind))
+				.findFirst()
+				.get();
 	}
 
 	private boolean allMatch(Set<EmailMessage> emails, Status expected) {
-		return emails.stream().allMatch(new Predicate<EmailMessage>() {
-			@Override
-			public boolean test(EmailMessage msg) {
-				return msg.getStatus().equals(expected);
-			} 
-		}
-	);
+		return emails
+				.stream()
+				.allMatch(msg -> msg.getStatus().equals(expected));
 	}
 }

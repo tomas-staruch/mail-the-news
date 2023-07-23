@@ -1,17 +1,17 @@
 package mail.the.news.service;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import mail.the.news.domain.AddressBook;
 import mail.the.news.domain.EmailAddress;
@@ -26,7 +26,7 @@ import mail.the.news.domain.User;
  * Note: when class is annotated by @DataJpaTest only beans related to JPA are autowired 
  * see https://spring.io/blog/2016/04/15/testing-improvements-in-spring-boot-1-4
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @DataJpaTest
 public class UserRepositoryTest {
 	
