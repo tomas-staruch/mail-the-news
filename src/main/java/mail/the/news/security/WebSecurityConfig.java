@@ -23,13 +23,15 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 class WebSecurityConfig {
 
-    @Autowired
-    UserRepository userRepository;
-    
-	@Autowired
-	PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
-    /**
+	public WebSecurityConfig(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+	}
+
+	/**
      * To allow a user to register himself, do not request authentication for POST method on "user" path
      */
 	@Bean
@@ -39,12 +41,13 @@ class WebSecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		// TODO HTTP Basic authentication is completely insecure unless the exchange was over a secure connection (HTTPS/TLS)
+		// Note: HTTP Basic authentication is completely insecure unless the exchange was over a secure connection (HTTPS/TLS)
 		http.authorizeRequests()
-			.anyRequest()
-			.authenticated().and()
-			.httpBasic().and()
-			.csrf().disable();
+				.requestMatchers("/error").permitAll()
+				.requestMatchers("/**").authenticated()
+			.and().httpBasic()
+			.and().csrf().disable()
+			.authorizeRequests();
 
 		return http.build();
 	}
@@ -69,7 +72,7 @@ class WebSecurityConfig {
 						// to encrypt the password and compare the hashes is used autowired {@link PasswordEncoder}
 						return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), user.isEnabled(), true, true, true, AuthorityUtils.createAuthorityList("USER"));
 					} catch(EmailSecurityException e) {
-						throw new UsernameNotFoundException("Could not find the user '" + email + "' because of an excaption as occured", e);
+						throw new UsernameNotFoundException("Could not find the user '" + email + "' because of an exception as occurred", e);
 					}
 				} else {
 					throw new UsernameNotFoundException("Could not find the user '" + email + "'");
